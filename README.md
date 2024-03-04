@@ -33,7 +33,7 @@ final ahoy = Ahoy(
       appVersion: "1.0.2",
       osVersion: Platform.operatingSystemVersion,
     ),
-    baseUrl: Uri.parse("https://your-server.com"),
+    baseUrl: "https://your-server.com",
  ),
 );
 ```
@@ -43,7 +43,7 @@ final ahoy = Ahoy(
 The configuration object offers sensible defaults, but you can customize various settings:
 
 - visitDuration _(30 minutes)_
-- urlRequestHandler _(`http.Client()`)_
+- urlRequestHandler _(`Client()`)_
 - Routing
  - ahoyPath _("ahoy")_
  - visitsPath _("visits")_
