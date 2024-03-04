@@ -128,8 +128,10 @@ class Ahoy {
     for (final interceptor in requestInterceptors) {
       interceptor.interceptRequest(request);
     }
-
-    return Response.fromStream(await request.send())
-      ..then((response) => validateResponse(response));
+    final handledRequest = await configuration.urlRequestHandler(request);
+    return Response.fromStream(handledRequest)
+      ..then(
+        (response) => validateResponse(response),
+      );
   }
 }
