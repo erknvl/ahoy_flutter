@@ -1,7 +1,3 @@
-Certainly! Here's a revised version of the README tailored for a Flutter package, with the text adjusted to avoid copyright issues:
-
----
-
 # Flutter Ahoy
 
 A straightforward and efficient analytics and visit tracking library for Flutter applications, designed to seamlessly integrate with your Rails [Ahoy](http://github.com/ankane/ahoy) backend inspired by [Ahoy iOS Library](https://github.com/namolnad/ahoy-ios).
@@ -86,7 +82,3 @@ ahoy.trackEvent("ride_details.update_driver_rating");
 ### Additional Features
 
 You can access the current visit directly through the `currentVisit` property of your Ahoy client. Additionally, the `headers` property allows you to include `Ahoy-Visitor` and `Ahoy-Visit` tokens in your requests as needed.
-
----
-
-This revised README provides a Flutter-specific guide for using the Flutter Ahoy package, including installation, configuration, and usage examples, with the text adjusted to avoid copyright issues.
