@@ -12,10 +12,13 @@ import 'dart:convert';
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
 import 'package:ahoy_flutter/src/event.dart';
+import 'package:ahoy_flutter/src/event_request_input.dart';
 import 'package:ahoy_flutter/src/publisher_ahoy.dart';
 import 'package:ahoy_flutter/src/request_interceptor.dart';
 import 'package:ahoy_flutter/src/token_manager.dart';
+import 'package:ahoy_flutter/src/user_id_decorated.dart';
 import 'package:ahoy_flutter/src/visit.dart';
+import 'package:ahoy_flutter/src/visit_request_input.dart';
 import 'package:http/http.dart';
 
 class Ahoy {
@@ -129,44 +132,4 @@ class Ahoy {
     return Response.fromStream(await request.send())
       ..then((response) => validateResponse(response));
   }
-}
-
-class VisitRequestInput {
-  String visitorToken;
-  String visitToken;
-  String platform;
-  String appVersion;
-  String osVersion;
-  Map<String, dynamic>? additionalParams;
-
-  VisitRequestInput({
-    required this.visitorToken,
-    required this.visitToken,
-    required this.platform,
-    required this.appVersion,
-    required this.osVersion,
-    this.additionalParams,
-  });
-}
-
-class EventRequestInput {
-  String visitorToken;
-  String visitToken;
-  List<UserIdDecorated<Event>> events;
-
-  EventRequestInput({
-    required this.visitorToken,
-    required this.visitToken,
-    required this.events,
-  });
-}
-
-class UserIdDecorated<Wrapped> {
-  String? userId;
-  Wrapped wrapped;
-
-  UserIdDecorated({
-    this.userId,
-    required this.wrapped,
-  });
 }

@@ -11,6 +11,15 @@ class Event {
     DateTime? time,
   }) : time = time ?? DateTime.now();
 
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'],
+      name: json['name'],
+      properties: json['properties'],
+      time: DateTime.parse(json['time']),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
