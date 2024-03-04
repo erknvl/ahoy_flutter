@@ -108,7 +108,7 @@ class Ahoy {
   }
 
   void authenticate(String userId) {
-    currentVisit?.userId = userId;
+    currentVisit = currentVisit?.copyWith(userId: userId);
   }
 
   Future<Response> dataTaskPublisher<Body>({

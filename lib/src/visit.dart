@@ -6,7 +6,7 @@ part 'visit.g.dart';
 class Visit {
   final String visitorToken;
   final String visitToken;
-  String? userId;
+  final String? userId;
   Map<String, dynamic>? additionalParams;
 
   Visit({
@@ -19,4 +19,18 @@ class Visit {
   factory Visit.fromJson(Map<String, dynamic> json) => _$VisitFromJson(json);
 
   Map<String, dynamic> toJson() => _$VisitToJson(this);
+
+  Visit copyWith({
+    String? visitorToken,
+    String? visitToken,
+    String? userId,
+    Map<String, dynamic>? additionalParams,
+  }) {
+    return Visit(
+      visitorToken: visitorToken ?? this.visitorToken,
+      visitToken: visitToken ?? this.visitToken,
+      userId: userId ?? this.userId,
+      additionalParams: additionalParams ?? this.additionalParams,
+    );
+  }
 }
