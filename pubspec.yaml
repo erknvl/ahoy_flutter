@@ -1,0 +1,28 @@
+name: ahoy_flutter
+description: "A new Flutter package project."
+version: 0.0.1
+publish_to: "none"
+homepage:
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^4.2.1
+  http: ^1.2.0
+  json_annotation: ^4.8.1
+  rxdart: ^0.27.7
+  shared_preferences: ^2.2.2
+  uuid: ^4.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.4.8
+  json_serializable: ^6.7.1
+
+flutter:
