@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:meta/meta_meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'expiring_persisted.g.dart';
 
@@ -24,34 +27,32 @@ class DatedStorageContainer<T> {
 
 class ExpiringPersisted<T> {
   final String key;
-  final T Function() newValue;
   final Duration? expiryPeriod;
-  final Future<SharedPreferences> _prefs;
 
   const ExpiringPersisted({
     required this.key,
-    required this.newValue,
-    required Future<SharedPreferences> prefs,
     this.expiryPeriod,
-  }) : _prefs = prefs;
+  });
 
   Future<T> get value async {
-    final prefs = await _prefs;
+    final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString(key);
     if (data == null) {
       final container = DatedStorageContainer(
         storageDate: DateTime.now(),
-        value: newValue(),
+        value: const Uuid().v4() as T,
       );
-      await prefs.setString(key, jsonEncode(container.toJson()));
+      prefs.setString(key, jsonEncode(container.toJson()));
       return container.value;
     }
     final container = DatedStorageContainer.fromJson(jsonDecode(data));
     if (expiryPeriod != null &&
-        DateTime.now().isAfter(container.storageDate.add(expiryPeriod!))) {
-      final newContainer = DatedStorageContainer(
+        DateTime.now().isAfter(
+          container.storageDate.add(expiryPeriod!),
+        )) {
+      final newContainer = DatedStorageContainer<T>(
         storageDate: DateTime.now(),
-        value: newValue(),
+        value: const Uuid().v4() as T,
       );
       await prefs.setString(key, jsonEncode(newContainer.toJson()));
       return newContainer.value;

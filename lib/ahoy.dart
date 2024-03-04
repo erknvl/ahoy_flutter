@@ -37,8 +37,8 @@ class Ahoy {
 
   Future<Visit> trackVisit({Map<String, dynamic>? additionalParams}) async {
     final visit = Visit(
-      visitorToken: storage.visitorToken,
-      visitToken: storage.visitToken,
+      visitorToken: await storage.visitorToken,
+      visitToken: await storage.visitToken,
       additionalParams: additionalParams,
     );
 
