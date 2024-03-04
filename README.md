@@ -1,39 +1,92 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+Certainly! Here's a revised version of the README tailored for a Flutter package, with the text adjusted to avoid copyright issues:
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+---
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+# Flutter Ahoy
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A straightforward and efficient analytics and visit tracking library for Flutter applications, designed to seamlessly integrate with your Rails [Ahoy](http://github.com/ankane/ahoy) backend inspired by [Ahoy iOS Library](https://github.com/namolnad/ahoy-ios).
 
-## Features
+## Key Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- 🌖 Comprehensive user visit tracking
+- 📥 Attribution of visits through UTM & referrer parameters
+- 📆 Easy-to-use, in-house event tracking
 
-## Getting started
+## Getting Started
+****
+To integrate Flutter Ahoy into your project, add the following dependency to your `pubspec.yaml` file:
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+ flutter_ahoy: ^latest_version
 ```
 
-## Additional information
+Replace `latest_version` with the most recent version of the package.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## How to Use
+
+To begin using Flutter Ahoy, you'll need to create an instance of the Ahoy client. This requires a configuration object that includes a `baseUrl` and an `ApplicationEnvironment` object.
+
+```dart
+import 'package:flutter_ahoy/flutter_ahoy.dart';
+
+final ahoy = Ahoy(
+ configuration: AhoyConfiguration(
+    environment: ApplicationEnvironment(
+      platform: Platform.operatingSystem,
+      appVersion: "1.0.2",
+      osVersion: Platform.operatingSystemVersion,
+    ),
+    baseUrl: Uri.parse("https://your-server.com"),
+ ),
+);
+```
+
+### Configuration Options
+
+The configuration object offers sensible defaults, but you can customize various settings:
+
+- visitDuration _(30 minutes)_
+- urlRequestHandler _(`http.Client()`)_
+- Routing
+ - ahoyPath _("ahoy")_
+ - visitsPath _("visits")_
+ - eventsPath _("events")_
+
+For additional customization, you can provide your own `AhoyTokenManager` and `RequestInterceptor`s during initialization.
+
+### Tracking Visits
+
+To track a visit, initialize your Ahoy client and then call the `trackVisit` method. This is typically done at the application's startup.
+
+```dart
+ahoy.trackVisit().then((visit) => print(visit));
+```
+
+### Sending Events
+
+Once a visit is successfully tracked, you can start sending events to your server.
+
+```dart
+// For batch event tracking, use the `trackEvents` function
+var eventsToSend = [
+ Event(name: "ride_details.update_driver_rating", properties: {"driver_id": 4}),
+ Event(name: "ride_details.increase_tip", properties: {"driver_id": 4}),
+];
+
+ahoy.trackEvents(eventsToSend).then((_) => eventsToSend.clear());
+
+// For individual event tracking, use the `trackEvent` method
+ahoy.trackEvent("ride_details.update_driver_rating", properties: {"driver_id": 4});
+
+// If an event doesn't require properties, you can omit them
+ahoy.trackEvent("ride_details.update_driver_rating");
+```
+
+### Additional Features
+
+You can access the current visit directly through the `currentVisit` property of your Ahoy client. Additionally, the `headers` property allows you to include `Ahoy-Visitor` and `Ahoy-Visit` tokens in your requests as needed.
+
+---
+
+This revised README provides a Flutter-specific guide for using the Flutter Ahoy package, including installation, configuration, and usage examples, with the text adjusted to avoid copyright issues.
