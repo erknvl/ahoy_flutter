@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
 import 'package:ahoy_flutter/src/event.dart';
+import 'package:ahoy_flutter/src/publisher_ahoy.dart';
 import 'package:ahoy_flutter/src/request_interceptor.dart';
 import 'package:ahoy_flutter/src/token_manager.dart';
 import 'package:ahoy_flutter/src/visit.dart';
@@ -125,7 +126,8 @@ class Ahoy {
       interceptor.interceptRequest(request);
     }
 
-    return Response.fromStream(await request.send());
+    return Response.fromStream(await request.send())
+      ..then((response) => validateResponse(response));
   }
 }
 

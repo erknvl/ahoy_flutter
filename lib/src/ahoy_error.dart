@@ -1,4 +1,4 @@
-sealed class AhoyError extends Error {}
+sealed class AhoyError implements Exception {}
 
 class NoVisitError extends AhoyError {}
 
