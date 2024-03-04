@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 class Configuration {
   final ApplicationEnvironment environment;
@@ -17,8 +17,8 @@ class Configuration {
     this.visitDuration,
   });
 
-  Future<http.StreamedResponse> urlRequestHandler(http.Request request) async {
-    return await http.Client().send(request);
+  Future<StreamedResponse> urlRequestHandler(Request request) async {
+    return await Client().send(request);
   }
 
   dynamic operator [](String key) {

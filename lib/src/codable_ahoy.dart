@@ -18,8 +18,8 @@ class AnyEncodable implements EncodableMixin {
   }
 }
 
-Map<String, dynamic> encodeDictionary(Map<String, dynamic> dictionary) {
-  return dictionary.map((key, value) {
+Map<String, dynamic> encodeDictionary(Map<String, dynamic> json) {
+  return json.map((key, value) {
     if (value is EncodableMixin) {
       return MapEntry(key, (value).toJson());
     } else {
