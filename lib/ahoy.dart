@@ -78,10 +78,11 @@ class Ahoy {
     final requestInput = EventRequestInput(
       visitorToken: currentVisit!.visitorToken,
       visitToken: currentVisit!.visitToken,
-      events: events
-          .map((event) =>
-              UserIdDecorated(userId: currentVisit!.userId, wrapped: event))
-          .toList(),
+      events: events.map(
+        (event) {
+          return UserIdDecorated(userId: currentVisit!.userId, wrapped: event);
+        },
+      ).toList(),
     );
 
     final response = await dataTaskPublisher(
@@ -91,7 +92,7 @@ class Ahoy {
     );
 
     if (response.statusCode != 200) {
-      throw throw UnacceptableResponseError(
+      throw UnacceptableResponseError(
         code: response.statusCode,
         data: response.body,
       );
