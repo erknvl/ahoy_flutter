@@ -9,6 +9,7 @@ export 'src/visit.dart';
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
 import 'package:ahoy_flutter/src/event.dart';
@@ -21,20 +22,36 @@ import 'package:ahoy_flutter/src/visit.dart';
 import 'package:ahoy_flutter/src/visit_request_input.dart';
 import 'package:http/http.dart';
 
+/// The main class of the Ahoy library. It is used to track visits and events
+/// to a server.
 class Ahoy {
   Visit? currentVisit;
-  List<String> headers = [];
-  List<RequestInterceptor> requestInterceptors = [];
+  final Map<String, String> headers;
+  final List<RequestInterceptor> requestInterceptors;
+
+  /// The configuration object for the Ahoy instance. It contains the base URL
+  /// of the server, the paths for the visits and events endpoints, and the
+  /// environment information.
   Configuration configuration;
+
+  /// The token manager used to store and retrieve the visitor and visit tokens
+  /// from the device's storage. By default, it uses the [TokenManager] class.
+  /// You can provide your own implementation by extending the [AhoyTokenManager]
   AhoyTokenManager storage;
+
+  /// A set of subscriptions to cancel when the Ahoy instance is disposed.
   Set<StreamSubscription> cancellables = {};
 
   Ahoy({
     required this.configuration,
+    this.headers = const {},
     this.requestInterceptors = const [],
     AhoyTokenManager tokenStorage = const TokenManager(),
   }) : storage = tokenStorage;
 
+  /// Track a visit to the server and return a [Visit] object
+  /// with the visitor and visit tokens.
+  /// Optionally, you can pass additional parameters to be sent to the server.
   Future<Visit> trackVisit({Map<String, dynamic>? additionalParams}) async {
     final visit = Visit(
       visitorToken: await storage.visitorToken,
@@ -51,7 +68,7 @@ class Ahoy {
       additionalParams: additionalParams,
     );
 
-    final response = await dataTaskPublisher(
+    final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
       body: requestInput,
       visit: visit,
@@ -74,6 +91,9 @@ class Ahoy {
     }
   }
 
+  /// Track a list of events to the server. The events will be associated
+  /// with the current visit. If no visit is tracked, a [NoVisitError] will be thrown.
+  /// Optionally, you can pass additional parameters to be sent to the server.
   Future<void> track(List<Event> events) async {
     if (currentVisit == null) {
       throw NoVisitError();
@@ -89,7 +109,7 @@ class Ahoy {
       ).toList(),
     );
 
-    final response = await dataTaskPublisher(
+    final response = await _dataTaskPublisher(
       path: configuration.eventsPath,
       body: requestInput,
       visit: currentVisit!,
@@ -103,15 +123,19 @@ class Ahoy {
     }
   }
 
+  /// Track a single event to the server. The event will be associated
+  /// with the current visit. If no visit is tracked, a [NoVisitError] will be thrown.
+  /// Optionally, you can pass additional parameters to be sent to the server.
   void trackSingle(String eventName, {Map<String, dynamic>? properties}) {
     track([Event(name: eventName, properties: properties ?? {})]);
   }
 
+  /// Authenticate the current visit with a user ID.
   void authenticate(String userId) {
     currentVisit = currentVisit?.copyWith(userId: userId);
   }
 
-  Future<Response> dataTaskPublisher<Body>({
+  Future<Response> _dataTaskPublisher<Body>({
     required String path,
     required Body body,
     required Visit visit,
@@ -124,7 +148,7 @@ class Ahoy {
     request.headers['Content-Type'] = 'application/json; charset=utf-8';
     request.headers['Ahoy-Visitor'] = visit.visitorToken;
     request.headers['Ahoy-Visit'] = visit.visitToken;
-
+    request.headers.addAll(headers);
     for (final interceptor in requestInterceptors) {
       interceptor.interceptRequest(request);
     }
