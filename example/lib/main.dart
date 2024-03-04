@@ -1,4 +1,4 @@
-import 'package:ahoy_flutter/ahoy.dart';
+import 'package:ahoy_flutter/ahoy_flutter.dart';
 
 import 'package:flutter/material.dart';
 
