@@ -11,7 +11,7 @@ final ahoy = Ahoy(
     ),
     baseUrl: 'https://example.com/api',
   ),
-  tokenStorage: TokenManager(),
+  tokenStorage: const TokenManager(),
 );
 void main() {
   runApp(const MyApp());

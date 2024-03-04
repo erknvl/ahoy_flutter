@@ -2,14 +2,16 @@ import 'dart:convert';
 
 import 'package:ahoy_flutter/src/expiring_persisted.dart';
 
-abstract class AhoyTokenManager {
+sealed class AhoyTokenManager {
   Future<String> get visitToken;
   Future<String> get visitorToken;
+
+  const AhoyTokenManager();
 }
 
 class TokenManager extends AhoyTokenManager {
   final Duration expiryPeriod;
-  TokenManager({this.expiryPeriod = const Duration(minutes: 30)});
+  const TokenManager({this.expiryPeriod = const Duration(minutes: 30)});
   static const JsonEncoder jsonEncoder = JsonEncoder();
   static const JsonDecoder jsonDecoder = JsonDecoder();
 

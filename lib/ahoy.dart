@@ -32,7 +32,7 @@ class Ahoy {
   Ahoy({
     required this.configuration,
     this.requestInterceptors = const [],
-    required AhoyTokenManager tokenStorage,
+    AhoyTokenManager tokenStorage = const TokenManager(),
   }) : storage = tokenStorage;
 
   Future<Visit> trackVisit({Map<String, dynamic>? additionalParams}) async {
