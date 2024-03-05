@@ -1,6 +1,6 @@
 # Flutter Ahoy
 
-A straightforward and efficient analytics and visit tracking library for Flutter applications, designed to seamlessly integrate with your Rails [Ahoy](http://github.com/ankane/ahoy) backend inspired by [Ahoy iOS Library](https://github.com/namolnad/ahoy-ios).
+A straightforward and efficient first party analytics and visit tracking library, designed to seamlessly integrate with your Rails [Ahoy](http://github.com/ankane/ahoy) backend inspired by [Ahoy iOS Library](https://github.com/namolnad/ahoy-ios).
 
 ## Key Features
 
