@@ -17,7 +17,7 @@ import 'package:ahoy_flutter/src/event_request_input.dart';
 import 'package:ahoy_flutter/src/publisher_ahoy.dart';
 import 'package:ahoy_flutter/src/request_interceptor.dart';
 import 'package:ahoy_flutter/src/token_manager.dart';
-import 'package:ahoy_flutter/src/user_id_decorated.dart';
+
 import 'package:ahoy_flutter/src/visit.dart';
 import 'package:ahoy_flutter/src/visit_request_input.dart';
 import 'package:http/http.dart';
@@ -68,26 +68,27 @@ class Ahoy {
       additionalParams: additionalParams,
     );
 
+    final queryParameters = {
+      'visit_token': visit.visitToken,
+      'visitor_token': visit.visitorToken,
+      'user_id': visit.userId,
+      'os': configuration.environment.platform,
+      'device_type': 'mobile',
+      'started_at': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
+    };
+
     final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
-      body: requestInput,
+      body: jsonEncode(requestInput.toJson()),
       visit: visit,
+      queryParameters: queryParameters,
     );
 
     if (response.statusCode == 200) {
-      final visitResponse = Visit.fromJson(jsonDecode(response.body));
-      if (visit.visitorToken == visitResponse.visitorToken &&
-          visit.visitToken == visitResponse.visitToken) {
-        currentVisit = visit;
-        return visit;
-      } else {
-        throw MismatchingVisitError();
-      }
+      currentVisit = visit;
+      return visit;
     } else {
-      throw UnacceptableResponseError(
-        code: response.statusCode,
-        data: response.body,
-      );
+      throw MismatchingVisitError();
     }
   }
 
@@ -99,27 +100,34 @@ class Ahoy {
       throw NoVisitError();
     }
 
-    final requestInput = EventRequestInput(
-      visitorToken: currentVisit!.visitorToken,
-      visitToken: currentVisit!.visitToken,
-      events: events.map(
-        (event) {
-          return UserIdDecorated(userId: currentVisit!.userId, wrapped: event);
-        },
-      ).toList(),
-    );
-
-    final response = await _dataTaskPublisher(
-      path: configuration.eventsPath,
-      body: requestInput,
-      visit: currentVisit!,
-    );
-
-    if (response.statusCode != 200) {
-      throw UnacceptableResponseError(
-        code: response.statusCode,
-        data: response.body,
+    final now = DateTime.now().toUtc();
+    final formattedDate =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    for (final event in events) {
+      final queryParameters = {
+        'visit_token': currentVisit!.visitToken,
+        'visitor_token': currentVisit!.visitorToken,
+        'user_id': currentVisit!.userId,
+        'os': configuration.environment.platform,
+        'device_type': 'mobile',
+        'time': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
+        'day': formattedDate,
+        'name': event.name,
+        'properties': jsonEncode(event.properties),
+      };
+      final response = await _dataTaskPublisher<EventRequestInput>(
+        path: configuration.eventsPath,
+        body: jsonEncode(event.properties),
+        visit: currentVisit!,
+        queryParameters: queryParameters,
       );
+
+      if (response.statusCode != 200) {
+        throw UnacceptableResponseError(
+          code: response.statusCode,
+          data: response.body,
+        );
+      }
     }
   }
 
@@ -137,22 +145,32 @@ class Ahoy {
 
   Future<Response> _dataTaskPublisher<Body>({
     required String path,
-    required Body body,
+    required String body,
     required Visit visit,
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParameters,
   }) async {
-    final request = Request(
-      'POST',
-      Uri.parse('${configuration.baseUrl}/${configuration.ahoyPath}/$path'),
+    final uri = Uri(
+      scheme: 'http',
+      host: 'localhost',
+      port: 3001,
+      path: '${configuration.ahoyPath}/$path',
+      queryParameters: queryParameters,
     );
-    request.body = jsonEncode(body);
+
+    final request = Request('POST', uri);
+
+    request.body = body;
     request.headers['Content-Type'] = 'application/json; charset=utf-8';
-    request.headers['Ahoy-Visitor'] = visit.visitorToken;
-    request.headers['Ahoy-Visit'] = visit.visitToken;
-    request.headers.addAll(headers);
+
+    if (headers != null) {
+      request.headers.addAll(headers);
+    }
     for (final interceptor in requestInterceptors) {
       interceptor.interceptRequest(request);
     }
     final handledRequest = await configuration.urlRequestHandler(request);
+
     return Response.fromStream(handledRequest)
       ..then(
         (response) => validateResponse(response),

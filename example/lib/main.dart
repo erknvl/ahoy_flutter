@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ahoy_flutter/ahoy_flutter.dart';
 
 import 'package:flutter/material.dart';
@@ -6,10 +8,13 @@ final ahoy = Ahoy(
   configuration: Configuration(
     environment: ApplicationEnvironment(
       appVersion: '1.0.0',
-      platform: 'iOS',
-      osVersion: '14.7',
+      platform: Platform.operatingSystem,
+      osVersion: Platform.operatingSystemVersion,
     ),
-    baseUrl: 'https://example.com/api',
+    ahoyPath: 'api/v1',
+    eventsPath: 'events/create',
+    visitsPath: 'visits/upsert',
+    baseUrl: 'http://localhost:3001',
   ),
   tokenStorage: const TokenManager(),
 );
@@ -49,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      ahoy.trackSingle('counter_incremented', properties: {
+      ahoy.trackSingle('Listing Activity Load', properties: {
         'counter': _counter + 1,
       });
     });
