@@ -40,5 +40,5 @@ List<UserIdDecorated<Event>> fromJsonEvents(Map<String, dynamic> json) {
 }
 
 List<Map<String, dynamic>> toJsonEvents(List<UserIdDecorated<Event>> events) {
-  return events.map((e) => e.toJson(e.wrapped.toJson())).toList();
+  return events.map((e) => e.toJson((Event event) => event.toJson())).toList();
 }

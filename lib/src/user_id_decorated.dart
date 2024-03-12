@@ -23,7 +23,7 @@ class UserIdDecorated<T> {
     return _$UserIdDecoratedFromJson(json, dataFromJson);
   }
 
-  Map<String, dynamic> toJson(wrapped) {
+  Map<String, dynamic> toJson(Map<String, dynamic>? Function(T value) wrapped) {
     return _$UserIdDecoratedToJson(
       this,
       wrapped,
