@@ -53,8 +53,6 @@ class Ahoy {
   /// with the visitor and visit tokens.
   /// Optionally, you can pass additional parameters to be sent to the server.
   Future<Visit> trackVisit({
-    Object? landingPage,
-    Object? referrer,
     Map<String, dynamic>? additionalParams,
   }) async {
     final visit = Visit(
@@ -161,7 +159,7 @@ class Ahoy {
     Map<String, dynamic>? queryParameters,
   }) async {
     final uri = Uri(
-      scheme: 'https',
+      scheme: 'http',
       host: host,
       port: port,
       path: '${configuration.ahoyPath}/$path',
