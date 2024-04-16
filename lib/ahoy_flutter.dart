@@ -52,7 +52,11 @@ class Ahoy {
   /// Track a visit to the server and return a [Visit] object
   /// with the visitor and visit tokens.
   /// Optionally, you can pass additional parameters to be sent to the server.
-  Future<Visit> trackVisit({Map<String, dynamic>? additionalParams}) async {
+  Future<Visit> trackVisit({
+    Object? landingPage,
+    Object? referrer,
+    Map<String, dynamic>? additionalParams,
+  }) async {
     final visit = Visit(
       visitorToken: await storage.visitorToken,
       visitToken: await storage.visitToken,
@@ -72,13 +76,15 @@ class Ahoy {
       'visit_token': visit.visitToken,
       'visitor_token': visit.visitorToken,
       'user_id': visit.userId,
-      'os': configuration.environment.platform,
+      'os_version': configuration.environment.osVersion,
       'device_type': 'mobile',
       'started_at': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
     };
 
     final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
+      host: configuration.baseUrl,
+      port: 3001,
       body: jsonEncode(requestInput.toJson()),
       visit: visit,
       queryParameters: queryParameters,
@@ -117,6 +123,8 @@ class Ahoy {
       };
       final response = await _dataTaskPublisher<EventRequestInput>(
         path: configuration.eventsPath,
+        port: 3001,
+        host: configuration.baseUrl,
         body: jsonEncode(event.properties),
         visit: currentVisit!,
         queryParameters: queryParameters,
@@ -147,13 +155,15 @@ class Ahoy {
     required String path,
     required String body,
     required Visit visit,
+    required String host,
+    required int port,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
   }) async {
     final uri = Uri(
-      scheme: 'http',
-      host: 'localhost',
-      port: 3001,
+      scheme: 'https',
+      host: host,
+      port: port,
       path: '${configuration.ahoyPath}/$path',
       queryParameters: queryParameters,
     );
