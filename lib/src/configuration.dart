@@ -6,6 +6,7 @@ class Configuration {
   final String ahoyPath;
   final String eventsPath;
   final String visitsPath;
+  final String userAgent;
   final Duration? visitDuration;
 
   Configuration({
@@ -14,6 +15,7 @@ class Configuration {
     this.ahoyPath = 'ahoy',
     this.eventsPath = 'events',
     this.visitsPath = 'visits',
+    this.userAgent = 'Ahoy Flutter',
     this.visitDuration,
   });
 
@@ -29,6 +31,8 @@ class Configuration {
         return environment.appVersion;
       case 'osVersion':
         return environment.osVersion;
+      case 'userAgent':
+        return userAgent;
       default:
         throw Exception('Invalid key: $key');
     }

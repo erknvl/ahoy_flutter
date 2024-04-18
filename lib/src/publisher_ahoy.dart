@@ -4,7 +4,7 @@ import 'package:http/http.dart';
 Response validateResponse(
   Response response, {
   int acceptableCodesStart = 200,
-  int acceptableCodesEnd = 399,
+  int acceptableCodesEnd = 299,
 }) {
   if (response.statusCode >= acceptableCodesStart &&
       response.statusCode <= acceptableCodesEnd) {

@@ -9,6 +9,7 @@ export 'src/visit.dart';
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
@@ -19,7 +20,7 @@ import 'package:ahoy_flutter/src/request_interceptor.dart';
 import 'package:ahoy_flutter/src/token_manager.dart';
 
 import 'package:ahoy_flutter/src/visit.dart';
-import 'package:ahoy_flutter/src/visit_request_input.dart';
+
 import 'package:http/http.dart';
 
 /// The main class of the Ahoy library. It is used to track visits and events
@@ -53,6 +54,11 @@ class Ahoy {
   /// with the visitor and visit tokens.
   /// Optionally, you can pass additional parameters to be sent to the server.
   Future<Visit> trackVisit({
+    String? utmSource,
+    String? utmMedium,
+    String? utmTerm,
+    String? utmCampaign,
+    String? landingPage,
     Map<String, dynamic>? additionalParams,
   }) async {
     final visit = Visit(
@@ -60,39 +66,47 @@ class Ahoy {
       visitToken: await storage.visitToken,
       additionalParams: additionalParams,
     );
-
-    final requestInput = VisitRequestInput(
-      visitorToken: visit.visitorToken,
-      visitToken: visit.visitToken,
-      platform: configuration.environment.platform,
-      appVersion: configuration.environment.appVersion,
-      osVersion: configuration.environment.osVersion,
-      additionalParams: additionalParams,
-    );
+    log('Visit tracking started: ${visit.toJson()}', name: 'Ahoy');
 
     final queryParameters = {
       'visit_token': visit.visitToken,
       'visitor_token': visit.visitorToken,
       'user_id': visit.userId,
+      'user_agent': configuration.userAgent,
       'os_version': configuration.environment.osVersion,
+      'platform': configuration.environment.platform,
       'device_type': 'mobile',
+      'landing_page': landingPage,
+      'utm_source': utmSource,
+      'utm_medium': utmMedium,
+      'utm_term': utmTerm,
+      'utm_campaign': utmCampaign,
       'started_at': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
     };
 
     final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
       host: configuration.baseUrl,
-      port: 3001,
-      body: jsonEncode(requestInput.toJson()),
+      port: 443,
       visit: visit,
       queryParameters: queryParameters,
     );
 
     if (response.statusCode == 200) {
       currentVisit = visit;
+      log('Visit tracked: $visit', name: 'Ahoy');
       return visit;
-    } else {
+    } else if (response.statusCode == 422) {
+      log('Error: Visit not tracked', name: 'Ahoy');
+
       throw MismatchingVisitError();
+    } else {
+      log('Error: Visit not tracked', name: 'Ahoy');
+      log('Response: ${response.body}', name: 'Ahoy');
+      throw UnacceptableResponseError(
+        code: response.statusCode,
+        data: response.body,
+      );
     }
   }
 
@@ -101,33 +115,34 @@ class Ahoy {
   /// Optionally, you can pass additional parameters to be sent to the server.
   Future<void> track(List<Event> events) async {
     if (currentVisit == null) {
+      log('Error: No Visit Found', name: 'Ahoy');
+
       throw NoVisitError();
     }
 
-    final now = DateTime.now().toUtc();
-    final formattedDate =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    // final now = DateTime.now().toUtc();
+    // final formattedDate =
+    //     '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     for (final event in events) {
       final queryParameters = {
         'visit_token': currentVisit!.visitToken,
         'visitor_token': currentVisit!.visitorToken,
         'user_id': currentVisit!.userId,
-        'os': configuration.environment.platform,
-        'device_type': 'mobile',
         'time': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
-        'day': formattedDate,
         'name': event.name,
         'properties': jsonEncode(event.properties),
       };
       final response = await _dataTaskPublisher<EventRequestInput>(
         path: configuration.eventsPath,
-        port: 3001,
+        port: 443,
         host: configuration.baseUrl,
         body: jsonEncode(event.properties),
         visit: currentVisit!,
         queryParameters: queryParameters,
       );
-
+      if (response.statusCode == 200) {
+        log('Event tracked: ${event.toJson()}', name: 'Ahoy');
+      }
       if (response.statusCode != 200) {
         throw UnacceptableResponseError(
           code: response.statusCode,
@@ -151,15 +166,15 @@ class Ahoy {
 
   Future<Response> _dataTaskPublisher<Body>({
     required String path,
-    required String body,
     required Visit visit,
     required String host,
     required int port,
+    String? body,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
   }) async {
     final uri = Uri(
-      scheme: 'http',
+      scheme: 'https',
       host: host,
       port: port,
       path: '${configuration.ahoyPath}/$path',
@@ -167,8 +182,10 @@ class Ahoy {
     );
 
     final request = Request('POST', uri);
-
-    request.body = body;
+    if (body != null) {
+      request.body = body;
+    }
+    request.headers['User-Agent'] = configuration.userAgent;
     request.headers['Content-Type'] = 'application/json; charset=utf-8';
 
     if (headers != null) {
