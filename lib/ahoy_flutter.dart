@@ -181,7 +181,7 @@ class Ahoy {
       path: '${configuration.ahoyPath}/$path',
       queryParameters: queryParameters,
     );
-    print(uri);
+
     final request = Request('POST', uri);
     if (body != null) {
       request.body = body;
