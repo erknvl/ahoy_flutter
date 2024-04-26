@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:ahoy_flutter/src/expiring_persisted.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 sealed class AhoyTokenManager {
   Future<String> get visitToken;
@@ -25,9 +27,14 @@ class TokenManager extends AhoyTokenManager {
 
   @override
   Future<String> get visitorToken async {
-    return await ExpiringPersisted<String>(
-      key: 'ahoy_visitor_token',
-      expiryPeriod: expiryPeriod,
-    ).value;
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString('ahoy_visitor_token');
+    if (data == null) {
+      final visitorToken = const Uuid().v4();
+      prefs.setString('ahoy_visitor_token', visitorToken);
+      return visitorToken;
+    }
+
+    return data;
   }
 }

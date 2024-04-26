@@ -13,6 +13,7 @@ import 'dart:developer';
 
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
+
 import 'package:ahoy_flutter/src/event.dart';
 import 'package:ahoy_flutter/src/event_request_input.dart';
 import 'package:ahoy_flutter/src/publisher_ahoy.dart';
@@ -61,6 +62,9 @@ class Ahoy {
     String? landingPage,
     Map<String, dynamic>? additionalParams,
   }) async {
+    if (currentVisit != null) {
+      return currentVisit!;
+    }
     final visit = Visit(
       visitorToken: await storage.visitorToken,
       visitToken: await storage.visitToken,
@@ -68,14 +72,15 @@ class Ahoy {
     );
     log('Visit tracking started: ${visit.toJson()}', name: 'Ahoy');
 
-    final queryParameters = {
+    final params = {
       'visit_token': visit.visitToken,
       'visitor_token': visit.visitorToken,
       'user_id': visit.userId,
       'user_agent': configuration.userAgent,
+      'app_version': configuration.environment.appVersion,
       'os_version': configuration.environment.osVersion,
       'platform': configuration.environment.platform,
-      'device_type': 'mobile',
+      'device_type': 'Mobile',
       'landing_page': landingPage,
       'utm_source': utmSource,
       'utm_medium': utmMedium,
@@ -89,13 +94,14 @@ class Ahoy {
       host: configuration.baseUrl,
       port: 443,
       visit: visit,
-      queryParameters: queryParameters,
+      body: json.encode(params),
     );
 
     if (response.statusCode == 200) {
-      currentVisit = visit;
-      log('Visit tracked: $visit', name: 'Ahoy');
-      return visit;
+      currentVisit = Visit.fromJson(jsonDecode(response.body));
+      log('Visit tracked: $currentVisit', name: 'Ahoy');
+
+      return currentVisit!;
     } else if (response.statusCode == 422) {
       log('Error: Visit not tracked', name: 'Ahoy');
 
@@ -103,6 +109,7 @@ class Ahoy {
     } else {
       log('Error: Visit not tracked', name: 'Ahoy');
       log('Response: ${response.body}', name: 'Ahoy');
+
       throw UnacceptableResponseError(
         code: response.statusCode,
         data: response.body,
@@ -124,7 +131,7 @@ class Ahoy {
     // final formattedDate =
     //     '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     for (final event in events) {
-      final queryParameters = {
+      final params = {
         'visit_token': currentVisit!.visitToken,
         'visitor_token': currentVisit!.visitorToken,
         'user_id': currentVisit!.userId,
@@ -138,12 +145,12 @@ class Ahoy {
         host: configuration.baseUrl,
         body: jsonEncode(event.properties),
         visit: currentVisit!,
-        queryParameters: queryParameters,
+        queryParameters: params,
       );
       if (response.statusCode == 200) {
         log('Event tracked: ${event.toJson()}', name: 'Ahoy');
-      }
-      if (response.statusCode != 200) {
+      } else {
+        log('Error: Event not tracked ${event.toJson()}', name: 'Ahoy');
         throw UnacceptableResponseError(
           code: response.statusCode,
           data: response.body,
@@ -194,11 +201,10 @@ class Ahoy {
     for (final interceptor in requestInterceptors) {
       interceptor.interceptRequest(request);
     }
+
     final handledRequest = await configuration.urlRequestHandler(request);
 
     return Response.fromStream(handledRequest)
-      ..then(
-        (response) => validateResponse(response),
-      );
+      ..then((response) => validateResponse(response));
   }
 }
