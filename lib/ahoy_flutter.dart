@@ -13,7 +13,6 @@ import 'dart:developer';
 
 import 'package:ahoy_flutter/src/ahoy_error.dart';
 import 'package:ahoy_flutter/src/configuration.dart';
-
 import 'package:ahoy_flutter/src/event.dart';
 import 'package:ahoy_flutter/src/event_request_input.dart';
 import 'package:ahoy_flutter/src/publisher_ahoy.dart';
@@ -62,9 +61,6 @@ class Ahoy {
     String? landingPage,
     Map<String, dynamic>? additionalParams,
   }) async {
-    if (currentVisit != null) {
-      return currentVisit!;
-    }
     final visit = Visit(
       visitorToken: await storage.visitorToken,
       visitToken: await storage.visitToken,
@@ -78,7 +74,7 @@ class Ahoy {
       'user_id': visit.userId,
       'user_agent': configuration.userAgent,
       'app_version': configuration.environment.appVersion,
-      'os_version': configuration.environment.osVersion,
+      'os': configuration.environment.osVersion,
       'platform': configuration.environment.platform,
       'device_type': 'Mobile',
       'landing_page': landingPage,
@@ -98,10 +94,9 @@ class Ahoy {
     );
 
     if (response.statusCode == 200) {
-      currentVisit = Visit.fromJson(jsonDecode(response.body));
-      log('Visit tracked: $currentVisit', name: 'Ahoy');
-
-      return currentVisit!;
+      currentVisit = visit;
+      log('Visit tracked: $visit', name: 'Ahoy');
+      return visit;
     } else if (response.statusCode == 422) {
       log('Error: Visit not tracked', name: 'Ahoy');
 
@@ -109,7 +104,6 @@ class Ahoy {
     } else {
       log('Error: Visit not tracked', name: 'Ahoy');
       log('Response: ${response.body}', name: 'Ahoy');
-
       throw UnacceptableResponseError(
         code: response.statusCode,
         data: response.body,
@@ -149,8 +143,8 @@ class Ahoy {
       );
       if (response.statusCode == 200) {
         log('Event tracked: ${event.toJson()}', name: 'Ahoy');
-      } else {
-        log('Error: Event not tracked ${event.toJson()}', name: 'Ahoy');
+      }
+      if (response.statusCode != 200) {
         throw UnacceptableResponseError(
           code: response.statusCode,
           data: response.body,
@@ -187,13 +181,13 @@ class Ahoy {
       path: '${configuration.ahoyPath}/$path',
       queryParameters: queryParameters,
     );
-
+    print(uri);
     final request = Request('POST', uri);
     if (body != null) {
       request.body = body;
     }
     request.headers['User-Agent'] = configuration.userAgent;
-    request.headers['Content-Type'] = 'application/json; charset=utf-8';
+    request.headers['Content-Type'] = 'application/json';
 
     if (headers != null) {
       request.headers.addAll(headers);
@@ -205,6 +199,8 @@ class Ahoy {
     final handledRequest = await configuration.urlRequestHandler(request);
 
     return Response.fromStream(handledRequest)
-      ..then((response) => validateResponse(response));
+      ..then(
+        (response) => validateResponse(response),
+      );
   }
 }
