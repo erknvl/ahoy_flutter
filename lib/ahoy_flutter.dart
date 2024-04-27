@@ -91,8 +91,6 @@ class Ahoy {
 
     final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
-      host: configuration.baseUrl,
-      port: 443,
       visit: visit,
       body: json.encode(params),
     );
@@ -139,8 +137,6 @@ class Ahoy {
       };
       final response = await _dataTaskPublisher<EventRequestInput>(
         path: configuration.eventsPath,
-        port: 443,
-        host: configuration.baseUrl,
         body: jsonEncode(event.properties),
         visit: currentVisit!,
         queryParameters: params,
@@ -172,16 +168,14 @@ class Ahoy {
   Future<Response> _dataTaskPublisher<Body>({
     required String path,
     required Visit visit,
-    required String host,
-    required int port,
     String? body,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
   }) async {
     final uri = Uri(
-      scheme: 'https',
-      host: host,
-      port: port,
+      scheme: configuration.scheme,
+      host: configuration.baseUrl,
+      port: configuration.port,
       path: '${configuration.ahoyPath}/$path',
       queryParameters: queryParameters,
     );

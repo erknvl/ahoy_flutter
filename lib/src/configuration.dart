@@ -3,6 +3,8 @@ import 'package:http/http.dart';
 class Configuration {
   final ApplicationEnvironment environment;
   final String baseUrl;
+  final int port;
+  final String scheme;
   final String ahoyPath;
   final String eventsPath;
   final String visitsPath;
@@ -12,6 +14,8 @@ class Configuration {
   Configuration({
     required this.environment,
     required this.baseUrl,
+    this.port = 443,
+    this.scheme = 'https',
     this.ahoyPath = 'ahoy',
     this.eventsPath = 'events',
     this.visitsPath = 'visits',
