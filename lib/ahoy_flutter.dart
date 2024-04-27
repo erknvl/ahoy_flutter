@@ -162,6 +162,21 @@ class Ahoy {
 
   /// Authenticate the current visit with a user ID.
   void authenticate(String userId) {
+    if (currentVisit == null) {
+      throw NoVisitError();
+    }
+    const path = '/ahoy/mobile/visits/update_user';
+    final params = {
+      'visit_token': currentVisit!.visitToken,
+      'user_id': userId,
+    };
+
+    _dataTaskPublisher(
+      path: path,
+      visit: currentVisit!,
+      body: jsonEncode(params),
+    );
+
     currentVisit = currentVisit?.copyWith(userId: userId);
   }
 
