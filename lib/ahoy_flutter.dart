@@ -60,7 +60,11 @@ class Ahoy {
     String? utmCampaign,
     String? landingPage,
     Map<String, dynamic>? additionalParams,
+    bool resetVisit = false,
   }) async {
+    if (resetVisit) {
+      await storage.resetVisitToken();
+    }
     final visit = Visit(
       visitorToken: await storage.visitorToken,
       visitToken: await storage.visitToken,

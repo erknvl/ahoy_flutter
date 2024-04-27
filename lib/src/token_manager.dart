@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 sealed class AhoyTokenManager {
   Future<String> get visitToken;
   Future<String> get visitorToken;
-
+  Future<void> resetVisitToken();
   const AhoyTokenManager();
 }
 
@@ -36,5 +36,11 @@ class TokenManager extends AhoyTokenManager {
     }
 
     return data;
+  }
+
+  @override
+  Future<void> resetVisitToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('ahoy_visit_token');
   }
 }
