@@ -91,7 +91,6 @@ class Ahoy {
 
     final response = await _dataTaskPublisher(
       path: configuration.visitsPath,
-      visit: visit,
       body: json.encode(params),
     );
 
@@ -123,22 +122,17 @@ class Ahoy {
       throw NoVisitError();
     }
 
-    // final now = DateTime.now().toUtc();
-    // final formattedDate =
-    //     '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     for (final event in events) {
       final params = {
         'visit_token': currentVisit!.visitToken,
         'visitor_token': currentVisit!.visitorToken,
         'user_id': currentVisit!.userId,
-        'time': '${DateTime.now().toUtc().toString().split('.')[0]} +0000',
         'name': event.name,
         'properties': jsonEncode(event.properties),
       };
       final response = await _dataTaskPublisher<EventRequestInput>(
         path: configuration.eventsPath,
         body: jsonEncode(event.properties),
-        visit: currentVisit!,
         queryParameters: params,
       );
       if (response.statusCode == 200) {
@@ -161,8 +155,10 @@ class Ahoy {
   }
 
   /// Authenticate the current visit with a user ID.
-  void authenticate(String userId) {
+  Future<void> authenticate(String userId) async {
     if (currentVisit == null) {
+      log('Error: No Visit Found', name: 'Ahoy');
+
       throw NoVisitError();
     }
     const path = '/ahoy/mobile/visits/update_user';
@@ -171,18 +167,25 @@ class Ahoy {
       'user_id': userId,
     };
 
-    _dataTaskPublisher(
+    final response = await _dataTaskPublisher(
       path: path,
-      visit: currentVisit!,
       body: jsonEncode(params),
     );
-
-    currentVisit = currentVisit?.copyWith(userId: userId);
+    if (response.statusCode == 200) {
+      currentVisit = currentVisit?.copyWith(userId: userId);
+      log('Visit authenticated: $userId', name: 'Ahoy');
+    } else {
+      log('Error: Visit not authenticated', name: 'Ahoy');
+      log('Response: ${response.body}', name: 'Ahoy');
+      throw UnacceptableResponseError(
+        code: response.statusCode,
+        data: response.body,
+      );
+    }
   }
 
   Future<Response> _dataTaskPublisher<Body>({
     required String path,
-    required Visit visit,
     String? body,
     Map<String, String>? headers,
     Map<String, dynamic>? queryParameters,
