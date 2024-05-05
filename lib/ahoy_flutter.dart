@@ -220,5 +220,5 @@ class Ahoy {
       );
   }
 
-  Visit get visit => currentVisit!;
+  Visit? get visit => currentVisit;
 }
