@@ -219,4 +219,6 @@ class Ahoy {
         (response) => validateResponse(response),
       );
   }
+
+  Visit get visit => currentVisit!;
 }
