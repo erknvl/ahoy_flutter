@@ -95,9 +95,9 @@ class Ahoy {
     );
 
     if (response.statusCode == 200) {
-      currentVisit = visit;
-      log('Visit tracked: $visit', name: 'Ahoy');
-      return visit;
+      currentVisit = Visit.fromJson(json.decode(response.body));
+      log('Visit tracked: ${currentVisit?.toJson()}', name: 'Ahoy');
+      return currentVisit!;
     } else if (response.statusCode == 422) {
       log('Error: Visit not tracked', name: 'Ahoy');
 
