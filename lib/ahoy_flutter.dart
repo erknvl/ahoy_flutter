@@ -128,7 +128,7 @@ class Ahoy {
         'visitor_token': currentVisit!.visitorToken,
         'user_id': currentVisit!.userId,
         'name': event.name,
-        'properties': jsonEncode(event.properties),
+        'properties': event.properties,
       };
       final response = await _dataTaskPublisher<EventRequestInput>(
         path: configuration.eventsPath,
