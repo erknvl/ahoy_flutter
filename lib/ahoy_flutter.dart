@@ -121,29 +121,24 @@ class Ahoy {
 
       throw NoVisitError();
     }
+    final bulkEvent = {
+      'visit_token': currentVisit!.visitToken,
+      'visitor_token': currentVisit!.visitorToken,
+      'events': events.map((e) => e.toJson()).toList(),
+    };
 
-    for (final event in events) {
-      final params = {
-        'visit_token': currentVisit!.visitToken,
-        'visitor_token': currentVisit!.visitorToken,
-        'user_id': currentVisit!.userId,
-        'name': event.name,
-        'properties': event.properties,
-      };
-      final response = await _dataTaskPublisher<EventRequestInput>(
-        path: configuration.eventsPath,
-        body: jsonEncode(event.properties),
-        queryParameters: params,
+    final response = await _dataTaskPublisher<EventRequestInput>(
+      path: configuration.eventsPath,
+      body: jsonEncode(bulkEvent),
+    );
+    if (response.statusCode == 200) {
+      log('Bulk Event tracked: $bulkEvent', name: 'Ahoy');
+    }
+    if (response.statusCode != 200) {
+      throw UnacceptableResponseError(
+        code: response.statusCode,
+        data: response.body,
       );
-      if (response.statusCode == 200) {
-        log('Event tracked: ${event.toJson()}', name: 'Ahoy');
-      }
-      if (response.statusCode != 200) {
-        throw UnacceptableResponseError(
-          code: response.statusCode,
-          data: response.body,
-        );
-      }
     }
   }
 
