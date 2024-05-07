@@ -156,14 +156,14 @@ class Ahoy {
 
       throw NoVisitError();
     }
-    const path = '/mobile/visits/update_user';
+
     final params = {
       'visit_token': currentVisit!.visitToken,
       'user_id': userId,
     };
 
     final response = await _dataTaskPublisher(
-      path: path,
+      path: configuration.authenticationPath,
       body: jsonEncode(params),
     );
     if (response.statusCode == 200) {

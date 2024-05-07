@@ -6,6 +6,7 @@ class Configuration {
   final int port;
   final String scheme;
   final String ahoyPath;
+  final String authenticationPath;
   final String eventsPath;
   final String visitsPath;
   final String userAgent;
@@ -19,6 +20,7 @@ class Configuration {
     this.ahoyPath = 'ahoy',
     this.eventsPath = 'events',
     this.visitsPath = 'visits',
+    this.authenticationPath = '/mobile/visits/update_user',
     this.userAgent = 'Ahoy Flutter',
     this.visitDuration,
   });
