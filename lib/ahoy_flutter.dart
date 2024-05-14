@@ -54,6 +54,9 @@ class Ahoy {
   /// with the visitor and visit tokens.
   /// Optionally, you can pass additional parameters to be sent to the server.
   Future<Visit> trackVisit({
+    /// [Optional] Custom visitor token to use for the visit.
+    /// If not provided, a new one will be generated.
+    String? visitorToken,
     String? utmSource,
     String? utmMedium,
     String? utmTerm,
@@ -66,7 +69,9 @@ class Ahoy {
       await storage.resetVisitToken();
     }
     final visit = Visit(
-      visitorToken: await storage.visitorToken,
+      visitorToken: currentVisit != null
+          ? visitorToken ?? await storage.visitorToken
+          : await storage.visitorToken,
       visitToken: await storage.visitToken,
       additionalParams: additionalParams,
     );
@@ -78,7 +83,7 @@ class Ahoy {
       'user_id': visit.userId,
       'user_agent': configuration.userAgent,
       'app_version': configuration.environment.appVersion,
-      'os': configuration.environment.osVersion,
+      'os_version': configuration.environment.osVersion,
       'platform': configuration.environment.platform,
       'device_type': 'Mobile',
       'landing_page': landingPage,
