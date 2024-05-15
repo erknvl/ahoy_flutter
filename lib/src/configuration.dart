@@ -10,18 +10,19 @@ class Configuration {
   final String eventsPath;
   final String visitsPath;
   final String userAgent;
+
   final Duration? visitDuration;
 
   Configuration({
     required this.environment,
     required this.baseUrl,
+    this.ahoyPath = 'ahoy',
+    this.authenticationPath = '/mobile/visits/update_user',
+    this.eventsPath = 'events',
     this.port = 443,
     this.scheme = 'https',
-    this.ahoyPath = 'ahoy',
-    this.eventsPath = 'events',
-    this.visitsPath = 'visits',
-    this.authenticationPath = '/mobile/visits/update_user',
     this.userAgent = 'Ahoy Flutter',
+    this.visitsPath = 'visits',
     this.visitDuration,
   });
 
@@ -48,11 +49,13 @@ class Configuration {
 class ApplicationEnvironment {
   final String platform;
   final String appVersion;
+  final String os;
   final String osVersion;
 
   ApplicationEnvironment({
-    required this.platform,
     required this.appVersion,
+    required this.os,
     required this.osVersion,
+    required this.platform,
   });
 }

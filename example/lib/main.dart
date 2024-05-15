@@ -9,6 +9,7 @@ final ahoy = Ahoy(
     environment: ApplicationEnvironment(
       appVersion: '1.0.0',
       platform: Platform.operatingSystem,
+      os: Platform.operatingSystem,
       osVersion: Platform.operatingSystemVersion,
     ),
     ahoyPath: 'api/v1',

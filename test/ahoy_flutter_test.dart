@@ -26,6 +26,7 @@ void main() {
         environment: ApplicationEnvironment(
           platform: 'flutter',
           appVersion: '1.0.0',
+          os: 'iOS',
           osVersion: '1.0.0',
         ),
       ),

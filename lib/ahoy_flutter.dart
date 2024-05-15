@@ -83,6 +83,7 @@ class Ahoy {
       'user_id': visit.userId,
       'user_agent': configuration.userAgent,
       'app_version': configuration.environment.appVersion,
+      'os': configuration.environment.os,
       'os_version': configuration.environment.osVersion,
       'platform': configuration.environment.platform,
       'device_type': 'Mobile',
