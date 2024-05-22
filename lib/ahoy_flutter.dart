@@ -86,7 +86,7 @@ class Ahoy {
       'os': configuration.environment.os,
       'os_version': configuration.environment.osVersion,
       'platform': configuration.environment.platform,
-      'device_type': 'Mobile',
+      'device_type': configuration.environment.deviceType,
       'landing_page': landingPage,
       'utm_source': utmSource,
       'utm_medium': utmMedium,
@@ -101,7 +101,7 @@ class Ahoy {
     );
 
     if (response.statusCode == 200) {
-      currentVisit = Visit.fromJson(json.decode(response.body));
+      currentVisit = visit;
       log('Visit tracked: ${currentVisit?.toJson()}', name: 'Ahoy');
       return currentVisit!;
     } else if (response.statusCode == 422) {

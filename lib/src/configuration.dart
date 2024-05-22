@@ -49,6 +49,7 @@ class Configuration {
 class ApplicationEnvironment {
   final String platform;
   final String appVersion;
+  final String deviceType;
   final String os;
   final String osVersion;
 
@@ -57,5 +58,6 @@ class ApplicationEnvironment {
     required this.os,
     required this.osVersion,
     required this.platform,
+    required this.deviceType,
   });
 }

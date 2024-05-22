@@ -8,6 +8,7 @@ final ahoy = Ahoy(
   configuration: Configuration(
     environment: ApplicationEnvironment(
       appVersion: '1.0.0',
+      deviceType: 'Mobile',
       platform: Platform.operatingSystem,
       os: Platform.operatingSystem,
       osVersion: Platform.operatingSystemVersion,

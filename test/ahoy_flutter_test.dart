@@ -24,6 +24,7 @@ void main() {
         visitsPath: 'visits',
         eventsPath: 'events',
         environment: ApplicationEnvironment(
+          deviceType: 'Mobile',
           platform: 'flutter',
           appVersion: '1.0.0',
           os: 'iOS',
