@@ -69,9 +69,7 @@ class Ahoy {
       await storage.resetVisitToken();
     }
     final visit = Visit(
-      visitorToken: currentVisit != null
-          ? visitorToken ?? await storage.visitorToken
-          : await storage.visitorToken,
+      visitorToken: visitorToken ?? await storage.visitorToken,
       visitToken: await storage.visitToken,
       additionalParams: additionalParams,
     );
